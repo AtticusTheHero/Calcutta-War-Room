@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 Calcutta War Room — Team SRU</title>
+<style>body{margin:0;padding:0;background:#0d1117}</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useMemo,useCallback}=React;
+// All 68 teams: region,seed,team,odds,ip(implied%),kp(kenpom),oe,de,rec,conf,formula(champ formula),tier,s25(2025 spend),inj,coachE8,confChamp,coach,coachNote,confNote,roth,notes,players[]
+const T=[
+// ══ EAST ══
+{r:"East",s:1,t:"Duke",o:"+330",ip:23.3,kp:1,oe:4,de:2,rec:"32-2",cf:"ACC",fm:true,tr:"premium",s25:37000,inj:"Foster OUT, Ngongba ?",e8:true,cc:true,ch:"Scheyer",cn:"F4 2025 ✓",ccn:"ACC reg+tourney ✓",ro:"'Blue Bloods.' TCU sleeper to upset OSU & pressure Duke.",nt:"NPOY Boozer. Country's best scoring margin. PASSES BOTH. 📈 TRENDING: OE surged to #2 since Feb 15. Elite both ends. Peaking at perfect time.",pl:[{n:"Cameron Boozer",p:"PF",y:"Fr",pp:22.7,rp:10.2,ap:4.1,nt:"NPOY. Highest OrtgG in KenPom history."},{n:"Cayden Boozer",p:"PG",y:"Fr",pp:8.2,rp:2.8,ap:5.1,nt:"Starting PG w/ Foster out."},{n:"Isaiah Evans",p:"SG",y:"Fr",pp:11.3,rp:3.1,ap:1.4,nt:"Deep range."},{n:"Dame Sarr",p:"G",y:"So",pp:9.8,rp:3.5,ap:2.7,nt:"Defensive menace."},{n:"Maliq Brown",p:"F",y:"Jr",pp:8.1,rp:5.4,ap:1.2,nt:"Interior presence."}]},
+{r:"East",s:16,t:"Siena",o:"+200000",ip:0.0,kp:192,oe:208,de:175,rec:"23-11",cf:"MAAC",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"McNamara",cn:"No E8.",ccn:"MAAC champ ✓",ro:null,nt:"Former Syracuse star Gerry McNamara coaching. MAAC champ.",pl:[]},
+{r:"East",s:8,t:"Ohio State",o:"+25000",ip:0.4,kp:23,oe:10,de:57,rec:"21-12",cf:"Big Ten",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"Diebler",cn:"No E8.",ccn:"No.",ro:"TCU sleeper to upset them.",nt:"Top 10 OE. 21-12 record.",pl:[]},
+{r:"East",s:9,t:"TCU",o:"+40000",ip:0.3,kp:43,oe:81,de:22,rec:"22-11",cf:"Big 12",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"Dixon",cn:"No E8.",ccn:"No.",ro:"🔥 EAST SLEEPER per Rothstein.",nt:"Elite D (#22). Jamie Dixon tourney experience. 📈 TRENDING: Offense improving #81→#55. TCU trending up offensively into tourney.",pl:[]},
+{r:"East",s:5,t:"St. John's",o:"+5000",ip:2.0,kp:16,oe:44,de:12,rec:"28-6",cf:"Big East",fm:false,tr:"watch",s25:null,inj:null,e8:true,cc:true,ch:"Pitino",cn:"'96+'13 Champ ✓",ccn:"Big East reg+tourney B2B ✓",ro:"Ejiofor vs Self storyline. E8 vs UConn = 'Ali-Frazier.' Dylan Mitchell 'unsung key.'",nt:"Under-seeded. PASSES BOTH. Back-to-back Big East double. 📊 TRENDING: ⚠️ SPLIT — #1 DEFENSE since Feb 15 (elite). But offense dropped #43→#64. Can they score enough?",pl:[{n:"Zuby Ejiofor",p:"F",y:"Sr",pp:16.2,rp:8.4,ap:2.1,nt:"Big East POY. 18p/9r/7blk in BE final."},{n:"Dylan Mitchell",p:"G",y:"Jr",pp:12.1,rp:3.8,ap:4.5,nt:"Rothstein's 'unsung key.'"},{n:"RJ Luis Jr.",p:"F",y:"Jr",pp:14.5,rp:5.2,ap:1.8,nt:"Versatile."},{n:"Deivon Smith",p:"G",y:"Sr",pp:10.8,rp:3.1,ap:5.8,nt:"Distributing PG."},{n:"Kadary Richmond",p:"G",y:"Sr",pp:9.4,rp:3.5,ap:3.2,nt:"Experienced."}]},
+{r:"East",s:12,t:"Northern Iowa",o:"+200000",ip:0.1,kp:71,oe:153,de:24,rec:"23-12",cf:"MVC",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:true,ch:"Jacobson",cn:"No E8.",ccn:"MVC champ ✓",ro:null,nt:"Elite defense. MVC champ. Slow tempo could frustrate St. John's. 12-seed upset potential.",pl:[]},
+{r:"East",s:4,t:"Kansas",o:"+5000",ip:2.0,kp:21,oe:57,de:10,rec:"23-10",cf:"Big 12",fm:false,tr:"watch",s25:null,inj:"Peterson ?",e8:true,cc:false,ch:"Self",cn:"2008 Champ ✓",ccn:"No Big 12 title ✗",ro:"Self & Pitino never coached vs each other in Power conf.",nt:"SOS #1. Top-10 D. Peterson missed 11 games. 0-5 in 2nd Rd as non-#1 since '14. 📉 TRENDING: ⬇️ Offense COLLAPSED #55→#113. Peterson health the culprit.",pl:[{n:"Darryn Peterson",p:"G",y:"Fr",pp:16.8,rp:4.2,ap:3.5,nt:"Proj #1 pick. Cramping issues."},{n:"Flory Bidunga",p:"F/C",y:"So",pp:13.8,rp:9.0,ap:1.1,nt:"2.7 BPG. Defensive anchor."},{n:"Zeke Mayo",p:"G",y:"Sr",pp:12.4,rp:3.1,ap:3.8,nt:"Veteran."},{n:"Rylan Griffen",p:"G",y:"Jr",pp:10.2,rp:2.8,ap:1.5,nt:"Bama transfer."},{n:"Hunter Dickinson",p:"C",y:"Sr",pp:11.5,rp:7.2,ap:1.8,nt:"5th year big."}]},
+{r:"East",s:13,t:"Cal Baptist",o:"+200000",ip:0.0,kp:106,oe:191,de:49,rec:"25-8",cf:"WAC",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Various",cn:"No E8.",ccn:"WAC champ ✓",ro:null,nt:"Tournament debut. Dominique Daniels Jr. 23.2 PPG (top-5 national). 39.9 RPG as team. Came back from 7 down w/ 2min left in WAC final.",pl:[]},
+{r:"East",s:6,t:"Louisville",o:"+12000",ip:0.8,kp:19,oe:20,de:25,rec:"23-10",cf:"ACC",fm:false,tr:"value",s25:null,inj:"Brown ?",e8:false,cc:false,ch:"Kelsey",cn:"0-5 1st Rd ✗",ccn:"No ✗",ro:null,nt:"Top-20 OE+DE. Brown lottery pick but hurt. 84.7 PPG. 📉 TRENDING: Defense slipped #25→#33. Brown injury hurt momentum.",pl:[{n:"Mikel Brown Jr.",p:"G",y:"So",pp:17.4,rp:3.2,ap:5.1,nt:"Lottery pick. Injury key."},{n:"Chucky Hepburn",p:"G",y:"Sr",pp:13.2,rp:2.8,ap:4.5,nt:"Wisc transfer."},{n:"Kasean Pryor",p:"F",y:"Jr",pp:11.8,rp:7.1,ap:1.2,nt:"Physical."},{n:"Reyne Smith",p:"G",y:"Sr",pp:10.5,rp:2.1,ap:1.8,nt:"Elite 3PT."},{n:"James Scott",p:"F",y:"Jr",pp:9.2,rp:5.8,ap:1.5,nt:"Versatile."}]},
+{r:"East",s:11,t:"South Florida",o:"+100000",ip:0.1,kp:49,oe:58,de:48,rec:"25-8",cf:"American",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:true,ch:"Amir Abdur-Rahim",cn:"No E8.",ccn:"American champ ✓",ro:null,nt:"Won American Conference. Beat Wichita State 70-55 in final. Wes Enis 16.7 PPG. First tourney since 2012.",pl:[]},
+{r:"East",s:3,t:"Michigan St",o:"+4000",ip:2.4,kp:9,oe:24,de:13,rec:"25-7",cf:"Big Ten",fm:false,tr:"value",s25:36000,inj:null,e8:true,cc:false,ch:"Izzo",cn:"2000 Champ, 8 F4s ✓",ccn:"No Big Ten title ✗",ro:null,nt:"Izzo 15-1 as top-9 seed Rd1. 27 NCAA trips. 📊 TRENDING: ⚠️ SPLIT — Offense surging #28→#8 but defense CRATERED #16→#64. Huge defensive red flag.",pl:[{n:"Jaden Akins",p:"G",y:"Sr",pp:15.8,rp:4.2,ap:3.1,nt:"Senior leader."},{n:"Xavier Booker",p:"F",y:"So",pp:12.5,rp:6.8,ap:1.4,nt:"Athletic big."},{n:"Jase Richardson",p:"G",y:"Fr",pp:11.2,rp:2.8,ap:4.5,nt:"J-Rich's son."},{n:"Coen Carr",p:"F",y:"So",pp:10.1,rp:5.5,ap:1.1,nt:"Rim finisher."},{n:"Syzmon Zapala",p:"C",y:"Jr",pp:8.8,rp:6.2,ap:0.8,nt:"Physical."}]},
+{r:"East",s:14,t:"N. Dakota St",o:"+200000",ip:0.0,kp:113,oe:124,de:123,rec:"27-7",cf:"Summit",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Richman",cn:"No E8.",ccn:"Summit champ ✓",ro:null,nt:"Summit League champ. 27-7 record. Dave Richman 14-2 in conf play.",pl:[]},
+{r:"East",s:7,t:"UCLA",o:"+13000",ip:0.8,kp:27,oe:22,de:54,rec:"23-11",cf:"Big Ten",fm:false,tr:"watch",s25:4500,inj:null,e8:true,cc:false,ch:"Cronin",cn:"F4 2021 ✓",ccn:"No ✗",ro:null,nt:"S16 in 3/4. Donovan Dent key. Travels poorly East. 📊 TRENDING: ⚠️ SPLIT — Offense surging to #7. Defense fell to #85. Can outscore but won't stop you.",pl:[]},
+{r:"East",s:10,t:"UCF",o:"+40000",ip:0.3,kp:54,oe:40,de:101,rec:"21-11",cf:"Big 12",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"Dawkins",cn:"No E8.",ccn:"No.",ro:null,nt:"Big 12 at-large. Nobody expected them in the field. Offense-first. 1-4 in 1st Rd historically. 📉 TRENDING: Offense dropped #40→#63. Lost 4 of last 5.",pl:[]},
+{r:"East",s:2,t:"UConn",o:"+1700",ip:5.6,kp:6,oe:21,de:4,rec:"29-5",cf:"Big East",fm:false,tr:"premium",s25:null,inj:"Demary ankle",e8:true,cc:false,ch:"Hurley",cn:"B2B Champ '23-24 ✓",ccn:"Lost BE final to SJU ✗",ro:"ROTHSTEIN F4. Hurley vs Pitino = 'Ali-Frazier.' Demary ankle key.",nt:"#4 defense. FAILED conf champ (only 3/28 exceptions since '97, but UConn IS a prior exception breaker). 📉 TRENDING: BOTH down hard. OE #25→#45, DE #12→#24. Lost BE final by 20.",pl:[{n:"Liam McNeeley",p:"F",y:"So",pp:16.8,rp:6.2,ap:2.1,nt:"Lead scorer."},{n:"Silas Demary Jr.",p:"G",y:"Jr",pp:13.5,rp:3.8,ap:5.2,nt:"Ankle from BE tourney."},{n:"Jayden Ross",p:"F",y:"Jr",pp:12.4,rp:5.8,ap:1.5,nt:"Athletic."},{n:"Solo Ball",p:"G",y:"Sr",pp:11.2,rp:2.5,ap:3.8,nt:"Veteran."},{n:"Tarris Reed Jr.",p:"C",y:"Jr",pp:10.1,rp:7.5,ap:1.2,nt:"Mich transfer."}]},
+{r:"East",s:15,t:"Furman",o:"+200000",ip:0.0,kp:190,oe:200,de:182,rec:"22-12",cf:"SoCon",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Richburg",cn:"No E8.",ccn:"SoCon champ ✓",ro:null,nt:"Beat ETSU by 15 in SoCon final. All 5 starters 6-5+. Top 2PT shooting % (60%). Upset Virginia in '23.",pl:[]},
+
+// ══ SOUTH ══
+{r:"South",s:1,t:"Florida",o:"+700",ip:12.5,kp:4,oe:9,de:6,rec:"26-7",cf:"SEC",fm:true,tr:"premium",s25:41000,inj:null,e8:true,cc:true,ch:"Golden",cn:"2025 Champ ✓",ccn:"SEC reg season ✓",ro:"'Region of Pressure.' B2B #1 seed. Houston geographic edge at Toyota Center.",nt:"Defending champs. #1 rebounding margin (+14.5). 86.8 PPG. PASSES BOTH. 📉 TRENDING: Offense cooled #11→#16. Defense dipped to #7. Lost to Vandy by 17 in SEC semis.",pl:[{n:"Walter Clayton Jr.",p:"G",y:"Sr",pp:15.1,rp:2.8,ap:4.5,nt:"2025 MOP."},{n:"Thomas Haugh",p:"F",y:"Sr",pp:14.5,rp:8.2,ap:2.1,nt:"Lottery pick."},{n:"Rueben Chinyelu",p:"C",y:"So",pp:12.8,rp:7.8,ap:1.2,nt:"#1 rebounding."},{n:"Alex Condon",p:"F",y:"Jr",pp:13.2,rp:6.5,ap:1.8,nt:"Versatile."},{n:"Will Richard",p:"G",y:"Sr",pp:11.5,rp:3.2,ap:2.8,nt:"Veteran."}]},
+{r:"South",s:16,t:"Lehigh/PV",o:"+200000",ip:0.0,kp:284,oe:296,de:257,rec:"18-16",cf:"Patriot/SWAC",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Reed/Various",cn:"No E8.",ccn:"Conf champs ✓",ro:null,nt:"First Four. Lehigh upset #2 Duke in 2012. Nasir Whitlock 21 PPG for Lehigh. Prairie View 18-17 won 5 of last 6.",pl:[]},
+{r:"South",s:8,t:"Clemson",o:"+25000",ip:0.4,kp:36,oe:71,de:20,rec:"24-10",cf:"ACC",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"Brownell",cn:"No E8.",ccn:"No.",ro:null,nt:"Stout defense. Made E8 in 2024, lost to McNeese Rd1 last year. Beat UNC in ACC tourney. 3rd straight appearance. Iowa (-2.5) slight favorite. 📊 TRENDING: Offense improved but defense fell #20→#41.",pl:[]},
+{r:"South",s:9,t:"Iowa",o:"+30000",ip:0.3,kp:25,oe:31,de:31,rec:"21-12",cf:"Big Ten",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"McCollum",cn:"No E8 (1st yr HC).",ccn:"No.",ro:null,nt:"Ben McCollum 1st year. Hold opp to 66 PPG. 49.1%% FG (top nationally). 4-1 at neutral sites. Slight fav over Clemson (-2.5). 📉 TRENDING: Defense dropped #31→#82. But neutral site record encouraging.",pl:[]},
+{r:"South",s:5,t:"Vanderbilt",o:"+6500",ip:1.5,kp:11,oe:7,de:29,rec:"26-7",cf:"SEC",fm:false,tr:"value",s25:null,inj:null,e8:false,cc:false,ch:"Byington",cn:"No E8 ✗",ccn:"Lost SEC final ✗",ro:null,nt:"Top-7 OE. Beat Florida by 17 in SEC semis. SEC tourney runner-up. FAILS BOTH. 📊 TRENDING: ⚠️ Offense stable top-10. But defense CRATERED #27→#78.",pl:[]},
+{r:"South",s:12,t:"McNeese",o:"+100000",ip:0.1,kp:68,oe:91,de:47,rec:"28-5",cf:"Southland",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:true,ch:"Wade",cn:"No E8.",ccn:"Southland 3-peat ✓",ro:null,nt:"Three-peat Southland champs. 86 wins in 3 yrs. Beat Clemson 12-over-5 last year. Amir 'Aura' Khan. 10+ steals/game. Popular upset pick. +13.5 PPG margin. 📊 TRENDING: Defense surged to #27. But offense dropped to #151. Defense-first March team.",pl:[]},
+{r:"South",s:4,t:"Nebraska",o:"+10000",ip:1.0,kp:14,oe:55,de:7,rec:"26-6",cf:"Big Ten",fm:false,tr:"value",s25:null,inj:null,e8:false,cc:false,ch:"Hoiberg",cn:"No E8 ✗",ccn:"No ✗",ro:"Promised fans happy hour — then picked Troy to upset them.",nt:"0-8 in 1st Rd EVER. #7 D. FAILS BOTH. Spread -13.5 vs Troy. 📉 TRENDING: ⬇️ OFFENSE COLLAPSED #61→#146 since Feb 15. Can't score. Defense #9 can't save them.",pl:[]},
+{r:"South",s:13,t:"Troy",o:"+200000",ip:0.0,kp:143,oe:141,de:166,rec:"22-11",cf:"Sun Belt",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Various",cn:"No E8.",ccn:"Sun Belt champ ✓",ro:"Thomas Dowd = name to watch. Rothstein picked Troy upset over Nebraska.",nt:"4 players avg 12+ PPG. 16 APG as team. 4th appearance, 0 wins. But Rothstein loves them here.",pl:[]},
+{r:"South",s:6,t:"North Carolina",o:"+11000",ip:0.9,kp:29,oe:32,de:37,rec:"24-8",cf:"ACC",fm:false,tr:"watch",s25:null,inj:"Wilson+another OUT",e8:true,cc:false,ch:"Davis",cn:"2022 Title Game ✓",ccn:"No ✗",ro:"TWO best players out with injuries.",nt:"Ceiling crashed. Henri Veesaar must step up. Only -2.5 vs VCU. 📉 TRENDING: Offense dropped #32→#61 since injuries. Both ends declining.",pl:[]},
+{r:"South",s:11,t:"VCU",o:"+50000",ip:0.2,kp:46,oe:46,de:63,rec:"27-7",cf:"A-10",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:true,ch:"Rhoades",cn:"No E8.",ccn:"A-10 champ ✓",ro:null,nt:"A-10 tourney champ. 27-7. Balanced metrics. UNC only -2.5 fav = live upset. 📈 TRENDING: Offense improving #49→#41. Defense steady #30. Right direction.",pl:[]},
+{r:"South",s:3,t:"Illinois",o:"+1900",ip:5.0,kp:7,oe:1,de:28,rec:"24-8",cf:"Big Ten",fm:false,tr:"premium",s25:7500,inj:null,e8:false,cc:false,ch:"Underwood",cn:"No E8 ✗",ccn:"No ✗",ro:null,nt:"#1 OFFENSE. Wagler breakout (unranked→lottery). 84.4 PPG, 11 3PM/game. FAILS BOTH — concern despite talent. 📊 TRENDING: Very stable. OE #4, DE #26 since Feb 15. Reliable.",pl:[{n:"Keaton Wagler",p:"G",y:"Fr",pp:18.3,rp:5.0,ap:4.3,nt:"Unranked to lottery pick."},{n:"Kasparas Jakucionis",p:"G",y:"So",pp:14.5,rp:4.2,ap:5.8,nt:"Elite playmaker."},{n:"Tomislav Ivisic",p:"C",y:"Jr",pp:12.8,rp:7.5,ap:1.2,nt:"Stretch 5."},{n:"Tre White",p:"F",y:"Jr",pp:11.2,rp:5.5,ap:1.8,nt:"Athletic."},{n:"Ben Humrichous",p:"F",y:"So",pp:9.8,rp:4.8,ap:1.1,nt:"Physical."}]},
+{r:"South",s:14,t:"Penn",o:"+150000",ip:0.0,kp:159,oe:215,de:112,rec:"18-11",cf:"Ivy",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Donahue",cn:"No E8.",ccn:"Ivy champ ✓",ro:null,nt:"TJ Power (Duke/UVA transfer) scored 44 pts in Ivy final. Top 3PT shooting team (38.6%). First appearance since 2018.",pl:[]},
+{r:"South",s:7,t:"St. Mary's",o:"+25000",ip:0.4,kp:24,oe:43,de:19,rec:"27-5",cf:"WCC",fm:false,tr:"watch",s25:4500,inj:null,e8:false,cc:false,ch:"Bennett",cn:"No E8 ✗",ccn:"Lost WCC final ✗",ro:null,nt:"Top-19 D. 27-5. Only -2.5 vs Texas A&M. FAILS BOTH.",pl:[]},
+{r:"South",s:10,t:"Texas A&M",o:"+35000",ip:0.3,kp:39,oe:49,de:40,rec:"21-11",cf:"SEC",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"Coleman",cn:"No E8.",ccn:"No.",ro:null,nt:"No Elite 8 in program history. SEC physicality. +2.5 dog vs St. Mary's — close game. 📉 TRENDING: ⬇️ BOTH collapsed. OE #49→#84, DE #40→#86. Fading badly.",pl:[]},
+{r:"South",s:2,t:"Houston",o:"+1000",ip:9.1,kp:5,oe:14,de:5,rec:"28-6",cf:"Big 12",fm:true,tr:"premium",s25:33000,inj:null,e8:true,cc:false,ch:"Sampson",cn:"Multiple F4s, title game '25 ✓",ccn:"Lost B12 final ✗",ro:"ROTHSTEIN F4. Geographic edge at Toyota Center. '25 title rematch vs Florida possible.",nt:"Runner-up '25. 62.9 PPG allowed. FAILS conf champ (only 3/28 exceptions since '97). 📉 TRENDING: Offense dropped #12→#27. Defense rock-solid #6. Offense is the concern.",pl:[{n:"Kingston Flemings",p:"G",y:"Jr",pp:15.8,rp:3.5,ap:3.2,nt:"Lottery pick. 40pt game."},{n:"Emanuel Sharp",p:"G",y:"Jr",pp:12.5,rp:3.1,ap:2.8,nt:"Sharpshooter."},{n:"J'Wan Roberts",p:"F",y:"Sr",pp:11.2,rp:7.8,ap:1.5,nt:"Rebounding machine."},{n:"Milos Uzan",p:"G",y:"Jr",pp:10.8,rp:3.2,ap:5.5,nt:"Floor general."},{n:"Joseph Tugler",p:"C",y:"Jr",pp:9.5,rp:6.2,ap:0.8,nt:"Shot blocker."}]},
+{r:"South",s:15,t:"Idaho",o:"+200000",ip:0.0,kp:145,oe:176,de:136,rec:"21-14",cf:"Big Sky",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Various",cn:"No E8.",ccn:"Big Sky champ ✓",ro:null,nt:"First appearance since 1990. Beat Big Sky #2,3,4 seeds in tourney run. 26+ RPG. Dream run.",pl:[]},
+
+// ══ MIDWEST ══
+{r:"Midwest",s:1,t:"Michigan",o:"+350",ip:22.2,kp:2,oe:8,de:1,rec:"31-2",cf:"Big Ten",fm:true,tr:"premium",s25:7500,inj:"Cason OUT",e8:true,cc:true,ch:"May",cn:"FAU F4 2023 ✓",ccn:"Big Ten reg season (19W, +4) ✓",ro:"ROTHSTEIN F4 + TITLE GAME. 'Region of Innovation.'",nt:"#1 DEFENSE. 7-3 Mara + Lendeborg + Morez = biggest lineup. PASSES BOTH. 📉 TRENDING: Offense dropped #6→#20 since Feb 15. Defense stable #5. Offensive slide is concerning.",pl:[{n:"Yaxel Lendeborg",p:"F",y:"Sr",pp:14.3,rp:7.3,ap:3.3,nt:"Transfer of Year. Lottery pick."},{n:"Morez Johnson Jr.",p:"F",y:"So",pp:13.3,rp:7.3,ap:1.2,nt:"6-9. $2M NIL."},{n:"Aday Mara",p:"C",y:"So",pp:10.8,rp:6.5,ap:1.5,nt:"7-3. #1 D anchor."},{n:"Nimari Burnett",p:"G",y:"Sr",pp:11.5,rp:3.1,ap:2.8,nt:"6-4 perimeter D."},{n:"Roddy Gayle Jr.",p:"G",y:"Jr",pp:10.2,rp:3.5,ap:3.5,nt:"OSU transfer."}]},
+{r:"Midwest",s:16,t:"UMBC/Howard",o:"+200000",ip:0.0,kp:185,oe:184,de:193,rec:"23-10",cf:"AE/MEAC",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Various",cn:"No E8.",ccn:"Conf champs ✓",ro:null,nt:"First Four. UMBC upset Virginia in 2018 as 16-seed. Howard 3rd appearance in 4 years. Howard 73.1% FT, 25+ FTA/game.",pl:[]},
+{r:"Midwest",s:8,t:"Georgia",o:"+50000",ip:0.2,kp:32,oe:16,de:80,rec:"22-10",cf:"SEC",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"White",cn:"No E8.",ccn:"No.",ro:"Rothstein picks Georgia over St. Louis.",nt:"0-4 in 1st Rd since 2008. 89.8 PPG. Best fastbreak team (19 PPG). 6.1 BPG. -1.5 fav vs Saint Louis. 📊 TRENDING: ⚠️ EXTREME — Offense surging to #3. Defense #169 = WORST of any tourney team.",pl:[]},
+{r:"Midwest",s:9,t:"Saint Louis",o:"+40000",ip:0.2,kp:41,oe:51,de:41,rec:"28-5",cf:"A-10",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:true,ch:"Schertz",cn:"No E8.",ccn:"A-10 champ (beat Dayton) ✓",ro:"Praised for modern coaching. Rothstein picks Georgia over them.",nt:"A-10 champ. 28-5. Josh Schertz 1st tourney. Balanced team. 📉 TRENDING: ⬇️ BOTH COLLAPSED. OE #51→#107, DE #41→#156. Fading badly despite record. No tourney experience.",pl:[]},
+{r:"Midwest",s:5,t:"Texas Tech",o:"+11000",ip:0.9,kp:20,oe:12,de:33,rec:"22-10",cf:"Big 12",fm:false,tr:"value",s25:23000,inj:"Toppin OUT (ACL)",e8:false,cc:false,ch:"McCasland",cn:"No E8 ✗",ccn:"No ✗",ro:null,nt:"S16 5/6. Lost Toppin. Christian Anderson stepping up. Wins over Duke & Arizona. 3-game losing streak to end. -8.5 vs Akron. 📊 TRENDING: Stable despite Toppin. OE #13, DE #23.",pl:[{n:"Christian Anderson",p:"G",y:"So",pp:14.2,rp:3.5,ap:4.8,nt:"23pts/9ast vs BYU."},{n:"Darrion Williams",p:"F",y:"Jr",pp:12.8,rp:5.5,ap:1.8,nt:"Versatile."},{n:"Chance McMillian",p:"G",y:"So",pp:11.5,rp:2.8,ap:3.2,nt:"Dynamic."},{n:"Warren Washington",p:"C",y:"Sr",pp:9.2,rp:6.8,ap:1.1,nt:"Rim protector."},{n:"Kevin Overton",p:"G",y:"Fr",pp:8.5,rp:2.2,ap:2.5,nt:"Freshman."}]},
+{r:"Midwest",s:12,t:"Akron",o:"+100000",ip:0.1,kp:64,oe:54,de:113,rec:"29-5",cf:"MAC",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:true,ch:"Groce",cn:"No E8.",ccn:"MAC 3-peat ✓",ro:"Rothstein's 12-5 upset pick.",nt:"3-peat MAC champs. Program record 29 wins. Top-10 scoring (88.4), top-20 FG% (50.3%), top-20 3PT% (37.9%). Popular upset pick.",pl:[]},
+{r:"Midwest",s:4,t:"Alabama",o:"+10000",ip:1.0,kp:17,oe:3,de:89,rec:"23-9",cf:"SEC",fm:false,tr:"value",s25:31000,inj:null,e8:true,cc:false,ch:"Oats",cn:"F4 2024 ✓",ccn:"No SEC title ✗",ro:"Praised for innovation.",nt:"Country's #1 PPG (91.7). Labaron Philon Jr. 21.7 PPG. 4 players avg 10+. Lost to Ole Miss in SEC tourney. 📉 TRENDING: ⬇️ Defense COLLAPSED #67→#109. Offense dropped #3→#12. Both ends declining.",pl:[]},
+{r:"Midwest",s:13,t:"Hofstra",o:"+200000",ip:0.0,kp:88,oe:89,de:96,rec:"24-10",cf:"CAA",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Claxton",cn:"No E8.",ccn:"CAA champ ✓",ro:null,nt:"First appearance since 2001. Speedy Claxton (legendary alumnus) coaching. Freshman Preston Edmead = CAA tourney MOP. Opp FG% 38.7% = top-5 nationally.",pl:[]},
+{r:"Midwest",s:6,t:"Tennessee",o:"+9000",ip:1.1,kp:15,oe:37,de:15,rec:"22-11",cf:"SEC",fm:false,tr:"value",s25:30000,inj:null,e8:true,cc:false,ch:"Barnes",cn:"Texas F4 2003 ✓",ccn:"No SEC title ✗",ro:"Picks Tenn over SMU.",nt:"Barnes 9-1 1st Rd. Top-15 D. No Final Four in program history. 📊 TRENDING: Stable. Defense rock-solid #14. No major concerns.",pl:[]},
+{r:"Midwest",s:11,t:"SMU/Miami OH",o:"+35000",ip:0.3,kp:42,oe:26,de:91,rec:"20-13/31-1",cf:"ACC/MAC",fm:false,tr:"r1r2",s25:null,inj:"Edwards returning (SMU)",e8:false,cc:false,ch:"Enfield/Steele",cn:"No E8.",ccn:"Miami OH: MAC reg season ✓",ro:"SMU UNDERRATED. Edwards returning. Miami OH 31-1 regular season, 52.4% FG (#1 nationally).",nt:"First Four. SMU -7.5 vs Miami OH. SMU first at-large since '93. Miami OH 31-1 reg season, 52.4% FG #1 nationally. 📉 TRENDING SMU: Defense COLLAPSED #91→#147. Edwards return (12.7 PPG, 2.3 SPG) should help. Miami OH trending: 28-1 record but lost MAC tourney = confidence shaken. SCOUTING: SMU team D-I experience avg 2.74 years = highest in tourney field.",pl:[]},
+{r:"Midwest",s:3,t:"Virginia",o:"+6000",ip:1.6,kp:13,oe:27,de:16,rec:"29-5",cf:"ACC",fm:false,tr:"value",s25:null,inj:null,e8:false,cc:false,ch:"Odom",cn:"No E8 ✗",ccn:"No ACC title ✗",ro:"Praised for innovation.",nt:"29-5. Top-16 D. Lost ACC final to Duke. FAILS BOTH. 📉 TRENDING: ⬇️ Defense COLLAPSED #16→#82. Major late-season regression despite great record.",pl:[]},
+{r:"Midwest",s:14,t:"Wright State",o:"+200000",ip:0.0,kp:140,oe:117,de:194,rec:"21-11",cf:"Horizon",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Various",cn:"No E8.",ccn:"Horizon champ ✓",ro:null,nt:"Horizon League champ. 14-seed record 5-35 last 10 tourneys.",pl:[]},
+{r:"Midwest",s:7,t:"Kentucky",o:"+10000",ip:1.0,kp:28,oe:39,de:27,rec:"21-13",cf:"SEC",fm:false,tr:"watch",s25:12000,inj:null,e8:false,cc:false,ch:"Pope",cn:"No E8 ✗",ccn:"No ✗",ro:null,nt:"Mark Pope era. 21-13. SEC battle-tested. Lost 5 of last 7 reg season. -3.5 vs Santa Clara. FAILS BOTH. 📉 TRENDING: Both ends declining. Neither end performing.",pl:[]},
+{r:"Midwest",s:10,t:"Santa Clara",o:"+50000",ip:0.2,kp:35,oe:23,de:82,rec:"26-8",cf:"WCC",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"Sendek",cn:"No E8.",ccn:"Lost WCC final ✗",ro:null,nt:"Herb Sendek back after 10-year hiatus. Freshman Allen Graves = top-6 nationally in steal %%. 26-8 WCC. +3.5 dog vs Kentucky — close game. 📊 TRENDING: Offense improved to #9. Defense COLLAPSED to #170.",pl:[]},
+{r:"Midwest",s:2,t:"Iowa State",o:"+2200",ip:4.3,kp:3,oe:5,de:3,rec:"32-2",cf:"Big 12",fm:false,tr:"premium",s25:15000,inj:null,e8:false,cc:false,ch:"Otzelberger",cn:"0-2 Sweet 16 ✗",ccn:"Co-champ reg (borderline) ✗",ro:"Rothstein picks Michigan over ISU.",nt:"KenPom #3. Momcilovic/Jefferson/Lipsey trio. 15+ TO forced/game. FAILS BOTH — major concern. 📉 TRENDING: Offense dropped #23→#31. Defense elite #3. Becoming one-dimensional.",pl:[]},
+{r:"Midwest",s:15,t:"Tennessee St",o:"+200000",ip:0.0,kp:187,oe:239,de:186,rec:"23-9",cf:"OVC",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Various",cn:"No E8.",ccn:"OVC champ ✓",ro:null,nt:"First appearance since 1994. OVC champ.",pl:[]},
+
+// ══ WEST ══
+{r:"West",s:1,t:"Arizona",o:"+400",ip:20.0,kp:3,oe:5,de:3,rec:"32-2",cf:"Big 12",fm:true,tr:"premium",s25:15000,inj:null,e8:false,cc:true,ch:"Lloyd",cn:"S16 best. No E8 ✗",ccn:"Big 12 reg+tourney ✓",ro:"'Floor Generals.' Picks Purdue over AZ in E8.",nt:"HEALTHIEST contender. 9 straight wins. Won B12 tourney beating Houston. Bradley buzzer-beater vs ISU. Passes conf only. 📊 TRENDING: Stable elite. OE #5, DE #4 since Feb 15. Consistent.",pl:[{n:"Jaden Bradley",p:"G",y:"Jr",pp:14.8,rp:3.2,ap:6.5,nt:"Floor general. Buzzer-beater vs ISU."},{n:"Brayden Burries",p:"G",y:"So",pp:13.5,rp:3.8,ap:2.5,nt:"Lottery pick potential."},{n:"Koa Peat",p:"F",y:"Fr",pp:12.2,rp:6.5,ap:2.1,nt:"5-star freshman."},{n:"Anthony Dell'Orso",p:"G",y:"Jr",pp:11.5,rp:3.2,ap:2.1,nt:"26pts off bench in B12 SF."},{n:"Tobe Awaka",p:"F",y:"Jr",pp:10.8,rp:5.8,ap:1.2,nt:"Battle-tested."}]},
+{r:"West",s:16,t:"LIU",o:"+200000",ip:0.0,kp:216,oe:239,de:186,rec:"24-10",cf:"NEC",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Various",cn:"No E8.",ccn:"NEC champ ✓",ro:null,nt:"NEC champ. 'FINS UP.' Fast-paced offense. 14.3 fastbreak PPG. 47.9% FG.",pl:[]},
+{r:"West",s:8,t:"Villanova",o:"+25000",ip:0.4,kp:33,oe:41,de:35,rec:"24-8",cf:"Big East",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"Willard",cn:"No E8 as Nova HC ✗",ccn:"No ✗",ro:null,nt:"Kevin Willard 1st year. Big East pedigree. Back in tourney after 3-yr drought. +1.5 dog vs Utah State = toss-up. 📉 TRENDING: ⬇️ Offense COLLAPSED #45→#102. Late-season freefall.",pl:[]},
+{r:"West",s:9,t:"Utah State",o:"+40000",ip:0.3,kp:30,oe:28,de:44,rec:"28-6",cf:"MWC",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"Morehead",cn:"No E8.",ccn:"No.",ro:null,nt:"MJ Collins Jr. (Vandy transfer) 17.6 PPG. 28-6. -1.5 fav vs Villanova. MWC 6-16 in Rd1 last 9 tourneys.",pl:[]},
+{r:"West",s:5,t:"Wisconsin",o:"+7000",ip:1.4,kp:22,oe:11,de:51,rec:"24-10",cf:"Big Ten",fm:false,tr:"value",s25:16000,inj:"Winter health",e8:false,cc:false,ch:"Gard",cn:"No E8 as HC ✗",ccn:"No ✗",ro:"Blackwell & Boyd highlighted. Wis vs Ark most intriguing 2nd Rd.",nt:"Highest-scoring Gard era. FAILS BOTH. 📈 TRENDING: Offense SURGING to #3 since Feb 15 (from #11). Peaking offensively at right time.",pl:[{n:"John Blackwell",p:"G",y:"So",pp:15.5,rp:3.8,ap:4.2,nt:"Floor general."},{n:"Nick Boyd",p:"G",y:"Jr",pp:12.8,rp:2.5,ap:5.1,nt:"Floor general #2."},{n:"Nolan Winter",p:"C",y:"So",pp:11.5,rp:7.2,ap:1.5,nt:"Health KEY."},{n:"John Tonje",p:"G",y:"Sr",pp:13.2,rp:4.1,ap:1.8,nt:"Veteran."},{n:"Max Klesmit",p:"G",y:"Sr",pp:9.8,rp:2.2,ap:2.5,nt:"Sharpshooter."}]},
+{r:"West",s:12,t:"High Point",o:"+200000",ip:0.0,kp:92,oe:66,de:161,rec:"30-4",cf:"Big South",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:true,ch:"Tubby Smith",cn:"Tubby Smith: 1998 Champ (UK) ✓",ccn:"Big South champ ✓",ro:null,nt:"30-4. Program record wins (again). #5 PPG nationally (90). #2 turnover margin (+7.1). #4 FTA (26.8). #1 scoring margin (+19.7 PPG). 📊 TRENDING: ⚠️ Defense surged #161→#65. But offense cratered #66→#136. Identity shift.",pl:[]},
+{r:"West",s:4,t:"Arkansas",o:"+5000",ip:2.0,kp:18,oe:6,de:52,rec:"26-8",cf:"SEC",fm:false,tr:"value",s25:4500,inj:"Saunders OUT",e8:true,cc:true,ch:"Calipari",cn:"2012 Champ (UK) ✓",ccn:"SEC tourney ✓",ro:"Acuff = key floor general.",nt:"First SEC title since 2000. Acuff 30pts/11ast in SEC final. Calipari first SEC title since '18. PASSES BOTH. 📊 TRENDING: Stable. Offense slightly cooled #6→#11. SEC tourney run was strong form.",pl:[{n:"Darius Acuff Jr.",p:"G",y:"Fr",pp:22.2,rp:3.0,ap:6.4,nt:"Best frosh PG since Rose/Wall. 49pts vs Bama."},{n:"Adou Thiero",p:"F",y:"Jr",pp:12.5,rp:6.2,ap:1.8,nt:"UK transfer."},{n:"Boogie Fland",p:"G",y:"Fr",pp:11.8,rp:2.8,ap:3.5,nt:"Dynamic frosh."},{n:"Jonas Aidoo",p:"C",y:"Sr",pp:9.5,rp:7.5,ap:1.2,nt:"Experienced big."},{n:"Meleek Thomas",p:"G",y:"Fr",pp:8.2,rp:2.5,ap:2.1,nt:"Depth."}]},
+{r:"West",s:13,t:"Hawaii",o:"+200000",ip:0.0,kp:107,oe:207,de:42,rec:"25-8",cf:"Big West",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Ganot",cn:"No E8.",ccn:"Big West champ ✓",ro:null,nt:"First appearance since 2016. Beat #1 UC Irvine in conf final. 7-0 Isaac Johnson + 6-9 Rouhliadeff in paint. Upset Cal as 16-seed in 2016.",pl:[]},
+{r:"West",s:6,t:"BYU",o:"+13000",ip:0.8,kp:10,oe:9,de:87,rec:"23-11",cf:"Big 12",fm:false,tr:"watch",s25:11000,inj:"Saunders OUT",e8:false,cc:false,ch:"Young",cn:"No E8 ✗",ccn:"No ✗",ro:null,nt:"Dybantsa 25.3 PPG (#1 nationally). FAILS BOTH. 📉 TRENDING: ⬇️ Defense COLLAPSED #87→#143. Saunders loss devastated defense.",pl:[{n:"AJ Dybantsa",p:"F",y:"Fr",pp:25.3,rp:6.7,ap:3.8,nt:"NATION'S LEADING SCORER. Potential #1 pick."},{n:"Robert Wright III",p:"G",y:"Jr",pp:22.4,rp:3.1,ap:4.5,nt:"Robin to Dybantsa."},{n:"Trevin Knell",p:"G",y:"Sr",pp:10.5,rp:2.8,ap:1.8,nt:"Veteran."},{n:"Fousseyni Traore",p:"F",y:"Sr",pp:9.8,rp:6.5,ap:1.2,nt:"Interior."},{n:"Egor Demin",p:"G",y:"Fr",pp:8.2,rp:3.5,ap:3.8,nt:"Russian frosh."}]},
+{r:"West",s:11,t:"Texas/NC St",o:"+40000",ip:0.2,kp:37,oe:13,de:111,rec:"18-14/20-13",cf:"SEC/ACC",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"Miller/Wade",cn:"No E8.",ccn:"No.",ro:null,nt:"First Four. Texas (-1.5). NC State: Will Wade, 38.8% 3PT (#9 nationally), reached F4 as 11-seed in 2024. Texas 18-14 but SEC experience.",pl:[]},
+{r:"West",s:3,t:"Gonzaga",o:"+5500",ip:1.8,kp:10,oe:29,de:9,rec:"30-3",cf:"WCC",fm:false,tr:"value",s25:5500,inj:"Huff doubtful",e8:true,cc:true,ch:"Few",cn:"Title game 2021 ✓",ccn:"WCC tourney (beat SCU 79-68) ✓",ro:"Huff doubtful (knee) per Few.",nt:"27th straight appearance. 16 straight Rd1 wins. 85.1 PPG, 51%% FG. PASSES BOTH but Huff injury dims ceiling. 📉 TRENDING: Offense dropped #29→#70. Huff injury showing.",pl:[]},
+{r:"West",s:14,t:"Kennesaw St",o:"+200000",ip:0.0,kp:163,oe:144,de:195,rec:"21-13",cf:"CUSA",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Various",cn:"No E8.",ccn:"CUSA champ ✓",ro:null,nt:"2nd appearance (also 2023 as ASUN). Won 3 straight in CUSA tourney. 83.7 PPG. Forces turnovers. Not afraid to shoot 3s.",pl:[]},
+{r:"West",s:7,t:"Miami FL",o:"+25000",ip:0.4,kp:31,oe:33,de:38,rec:"25-8",cf:"ACC",fm:false,tr:"r1r2",s25:null,inj:null,e8:true,cc:false,ch:"Larrañaga",cn:"F4 2022 ✓",ccn:"No ✗",ro:null,nt:"50%%+ FG. Malik Reneau (IU transfer) 18.8 PPG. -1.5 vs Missouri = close. Balanced offense & defense. 📈 TRENDING: Offense improving to #21. Reneau driving improvement.",pl:[]},
+{r:"West",s:10,t:"Missouri",o:"+50000",ip:0.2,kp:52,oe:50,de:77,rec:"20-12",cf:"SEC",fm:false,tr:"r1r2",s25:null,inj:null,e8:false,cc:false,ch:"Gates",cn:"No E8.",ccn:"No.",ro:null,nt:"1-7 in tourney since 2011. SEC experience. +1.5 dog vs Miami FL.",pl:[]},
+{r:"West",s:2,t:"Purdue",o:"+3500",ip:2.8,kp:8,oe:2,de:36,rec:"26-8",cf:"Big Ten",fm:false,tr:"premium",s25:20000,inj:null,e8:true,cc:true,ch:"Painter",cn:"F4 '24, Title game '25 ✓",ccn:"Big Ten tourney ✓",ro:"🏆 ROTHSTEIN'S CHAMPION. Senior journey: FDU→F4→title game. Cluff X-factor. Smith = best playmaker.",nt:"Won B1G tourney beating Michigan 80-72. Cluff had 21pts in final. #2 offense. PASSES BOTH + Rothstein champ = strongest signal. 📈 TRENDING: #1 OFFENSE since Feb 15. Scorching hot. Defense dipped to #50.",pl:[{n:"Braden Smith",p:"G",y:"Sr",pp:14.8,rp:4.2,ap:7.5,nt:"BEST PLAYMAKER. $1.9M NIL."},{n:"Trey Kaufman-Renn",p:"F",y:"Sr",pp:15.2,rp:6.8,ap:1.5,nt:"Key to #2 offense."},{n:"Fletcher Loyer",p:"G",y:"Sr",pp:13.5,rp:2.5,ap:2.8,nt:"Elite shooter."},{n:"Oscar Cluff",p:"F",y:"Jr",pp:9.8,rp:5.5,ap:1.2,nt:"🔑 X-FACTOR. 21pts in B1G final."},{n:"Daniel Jacobsen",p:"C",y:"So",pp:8.5,rp:5.2,ap:0.8,nt:"Growing."}]},
+{r:"West",s:15,t:"Queens",o:"+200000",ip:0.0,kp:187,oe:239,de:186,rec:"20-13",cf:"ASUN",fm:false,tr:"avoid",s25:null,inj:null,e8:false,cc:true,ch:"Various",cn:"No E8.",ccn:"ASUN champ ✓",ro:null,nt:"Tournament DEBUT. First year of eligibility — only 5th school since '72 to qualify in first eligible year. Historic moment.",pl:[]},
+];
+
+const RC={East:{bg:"#1a365d",bd:"#2b6cb0",hd:"#63b3ed",tx:"#90cdf4"},South:{bg:"#742a2a",bd:"#c53030",hd:"#fc8181",tx:"#feb2b2"},Midwest:{bg:"#744210",bd:"#c27803",hd:"#f6e05e",tx:"#fefcbf"},West:{bg:"#22543d",bd:"#38a169",hd:"#68d391",tx:"#c6f6d5"}};
+const TC={premium:{l:"PREMIUM",c:"#f6e05e"},value:{l:"VALUE",c:"#68d391"},watch:{l:"WATCH",c:"#63b3ed"},r1r2:{l:"R1/R2",c:"#a0aec0"},avoid:{l:"AVOID",c:"#718096"}};
+const RN={East:"Blue Bloods",South:"Pressure",Midwest:"Innovation",West:"Floor Generals"};
+function EV(t,p=504000){const r=t.ip/100;return Math.round(Math.min(r*6.5,.95)*p*.25/16+Math.min(r*4,.85)*p*.48/8+Math.min(r*2.5,.7)*p*.15/4+Math.min(r*1.5,.5)*p*.05/2+r*p*.05)}
+function PB(t){if(t.e8&&t.cc)return{x:"✓✓",c:"#3fb950"};if(t.e8)return{x:"✓Co",c:"#58a6ff"};if(t.cc)return{x:"✓Cf",c:"#d2a8ff"};return{x:"✗✗",c:"#484f58"}}
+
+const TABS=["Full Bracket","Champ Profile","Players","Portfolio","Strategy","2025 Recap"];
+
+function getTrend(nt){if(!nt)return null;if(nt.includes("⬇️")||nt.includes("COLLAPSED")||nt.includes("COLLAPSING"))return{i:"⬇",c:"#f85149"};if(nt.includes("📉")&&nt.includes("dropped"))return{i:"↓",c:"#f97583"};if(nt.includes("📈")&&(nt.includes("SURGING")||nt.includes("PEAKING")||nt.includes("surged")))return{i:"↑",c:"#3fb950"};if(nt.includes("📈"))return{i:"↗",c:"#56d364"};if(nt.includes("⚠️ SPLIT")||nt.includes("⚠️ EXTREME")||nt.includes("SPLIT"))return{i:"⚡",c:"#d29922"};if(nt.includes("📊 TRENDING: Stable")||nt.includes("→ STABLE"))return{i:"→",c:"#8b949e"};if(nt.includes("📉"))return{i:"↘",c:"#f97583"};return null}
+
+function App(){
+  const[tab,sT]=useState("Full Bracket");const[reg,sR]=useState("All");const[tier,sTr]=useState("All");
+  const[port,sP]=useState([]);const[comp,sC]=useState(["Duke","Michigan","Arizona","Purdue","Houston"]);const[exp,sE]=useState(null);
+  const regs=["East","South","Midwest","West"];
+  const filt=useMemo(()=>{let d=T;if(reg!=="All")d=d.filter(x=>x.r===reg);if(tier!=="All")d=d.filter(x=>x.tr===tier);return d},[reg,tier]);
+  const addP=useCallback(t=>{if(!port.find(p=>p.t===t.t))sP(v=>[...v,{...t,bid:0,own:100}])},[port]);
+  const upP=useCallback((n,f,v)=>sP(p=>p.map(x=>x.t===n?{...x,[f]:Number(v)}:x)),[]);
+  const rmP=useCallback(n=>sP(p=>p.filter(x=>x.t!==n)),[]);
+  const totS=port.reduce((a,p)=>a+p.bid,0);const totE=port.reduce((a,p)=>a+EV(p)*(p.own/100),0);
+
+  return(<div style={{fontFamily:"'JetBrains Mono',monospace",background:"#0d1117",color:"#c9d1d9",minHeight:"100vh",padding:10}}>
+    <style>{`@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#161b22}::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px}.B{cursor:pointer;padding:5px 10px;border:1px solid #30363d;background:#161b22;color:#8b949e;font-size:9px;letter-spacing:1px;text-transform:uppercase;font-family:inherit;border-radius:3px;transition:all .15s;white-space:nowrap}.B.on{background:#1f6feb;color:#fff;border-color:#1f6feb}.B:hover:not(.on){background:#21262d;color:#c9d1d9}.F{cursor:pointer;padding:2px 7px;border:1px solid #30363d;background:transparent;color:#8b949e;font-size:8px;letter-spacing:.7px;text-transform:uppercase;font-family:inherit;border-radius:2px}.F.on{border-color:#58a6ff;color:#58a6ff;background:rgba(88,166,255,.1)}.R:hover{background:rgba(255,255,255,.03)!important}input[type=number],select{background:#0d1117;border:1px solid #30363d;color:#c9d1d9;padding:3px 5px;font-family:inherit;font-size:10px;border-radius:2px}input:focus{border-color:#58a6ff;outline:none}`}</style>
+    <div style={{textAlign:"center",marginBottom:8,borderBottom:"1px solid #21262d",paddingBottom:6}}>
+      <h1 style={{fontFamily:"'Space Grotesk'",fontSize:18,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"#f0f6fc"}}>2026 Calcutta War Room</h1>
+      <div style={{fontSize:8,color:"#8b949e",letterSpacing:1.2,marginTop:2}}>TEAM SRU · ALL 68 TEAMS · EST. POOL ~$504K · DRAFTKINGS ODDS · ROTHSTEIN · CHAMP FILTERS · 3/16/26</div>
+    </div>
+    <div style={{display:"flex",gap:3,marginBottom:8,flexWrap:"wrap",justifyContent:"center"}}>{TABS.map(t=><button key={t} className={`B ${tab===t?"on":""}`} onClick={()=>sT(t)}>{t}</button>)}</div>
+
+    {tab==="Full Bracket"&&<div>
+      <div style={{display:"flex",gap:3,marginBottom:6,flexWrap:"wrap",justifyContent:"center"}}>
+        {["All",...regs].map(r=><button key={r} className={`F ${reg===r?"on":""}`} onClick={()=>sR(r)}>{r}</button>)}
+        <span style={{color:"#30363d"}}>|</span>
+        {["All","premium","value","watch","r1r2","avoid"].map(x=><button key={x} className={`F ${tier===x?"on":""}`} onClick={()=>sTr(x)}>{x==="All"?"All":TC[x]?.l||x}</button>)}
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:reg==="All"?"repeat(auto-fit,minmax(275px,1fr))":"1fr",gap:6}}>
+        {(reg==="All"?regs:[reg]).map(rg=>{const rc=RC[rg];const rt=filt.filter(x=>x.r===rg).sort((a,b)=>a.s-b.s);
+        return <div key={rg} style={{background:"#161b22",border:`1px solid ${rc.bd}40`,borderRadius:4,overflow:"hidden"}}>
+          <div style={{background:rc.bg,padding:"5px 8px"}}><span style={{fontFamily:"'Space Grotesk'",fontWeight:700,fontSize:11,letterSpacing:1.5,textTransform:"uppercase",color:rc.hd}}>{rg}</span><span style={{fontSize:7,color:rc.tx,marginLeft:6}}>"{RN[rg]}"</span><span style={{fontSize:7,color:rc.tx,float:"right"}}>{rt.length} teams</span></div>
+          {rt.map(t=>{const c=TC[t.tr]||{l:"",c:"#718096"};const e=EV(t);const isE=exp===t.t;const pb=PB(t);
+          return <div key={t.t}><div className="R" onClick={()=>sE(isE?null:t.t)} style={{display:"flex",alignItems:"center",padding:"2px 8px",cursor:"pointer",borderBottom:"1px solid #21262d10",gap:3}}>
+            <span style={{width:16,fontSize:9,color:"#8b949e"}}>{t.s}</span>
+            <span style={{flex:1,fontSize:10,fontWeight:600,color:c.c}}>{t.t}{t.inj?" ⚠️":""}{t.fm?" ★":""}{t.ro?" 🎙️":""}{(()=>{const tr=getTrend(t.nt);return tr?React.createElement("span",{style:{color:tr.c,fontSize:8,marginLeft:2}},tr.i):null})()}</span>
+            <span style={{fontSize:7,padding:"1px 3px",borderRadius:2,color:pb.c,border:`1px solid ${pb.c}30`,background:`${pb.c}12`}}>{pb.x}</span>
+            <span style={{fontSize:9,color:"#3fb950",minWidth:44,textAlign:"right"}}>{e>0?"~$"+(e>999?Math.round(e/1000)+"K":e):""}</span>
+            <button onClick={x=>{x.stopPropagation();addP(t)}} style={{background:"transparent",border:"1px solid #30363d",color:"#58a6ff",fontSize:7,padding:"1px 4px",borderRadius:2,cursor:"pointer",fontFamily:"inherit"}}>+</button>
+          </div>
+          {isE&&<div style={{padding:"3px 8px 5px 24px",fontSize:8,color:"#8b949e",lineHeight:1.4,background:"rgba(0,0,0,.2)",borderBottom:"1px solid #21262d"}}>
+            <div><b style={{color:"#c9d1d9"}}>{t.rec}</b> · {t.cf} · KP#{t.kp} · OE#{t.oe} · DE#{t.de} · {t.o} ({t.ip}%)</div>
+            <div style={{color:pb.c}}>👤 <b>{t.ch}</b>: {t.cn} · 🏆 {t.ccn}</div>
+            {t.inj&&<div style={{color:"#f85149"}}>⚠️ {t.inj}</div>}
+            {t.ro&&<div style={{color:"#d2a8ff"}}>🎙️ {t.ro}</div>}
+            <div style={{fontStyle:"italic"}}>{t.nt}</div>
+            {t.pl?.length>0&&<div style={{marginTop:3}}><div style={{fontSize:7,color:"#58a6ff"}}>STARTING 5:</div>
+              {t.pl.map(p=><div key={p.n} style={{marginLeft:6}}><b style={{color:"#c9d1d9"}}>{p.n}</b> ({p.p}/{p.y}) {p.pp}ppg {p.rp}rpg {p.ap}apg</div>)}</div>}
+          </div>}</div>})}
+        </div>})}
+      </div>
+      <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:6,fontSize:8,color:"#8b949e",flexWrap:"wrap"}}>
+        {Object.entries(TC).map(([k,v])=><span key={k}><span style={{display:"inline-block",width:6,height:6,background:v.c,borderRadius:1,marginRight:2,verticalAlign:"middle"}}/>{v.l}</span>)}
+        <span>★ Formula</span><span>🎙️ Rothstein</span>
+        <span style={{color:"#3fb950"}}>✓✓ Both</span><span style={{color:"#58a6ff"}}>✓Co Coach</span><span style={{color:"#d2a8ff"}}>✓Cf Conf</span>
+        <span style={{color:"#30363d"}}>|</span>
+        <span style={{color:"#3fb950"}}>↑ Peaking</span>
+        <span style={{color:"#f85149"}}>⬇ Fading</span>
+        <span style={{color:"#d29922"}}>⚡ Split</span>
+      </div>
+    </div>}
+
+    {tab==="Champ Profile"&&<div style={{background:"#161b22",border:"1px solid #30363d",borderRadius:4,padding:12}}>
+      <h3 style={{fontFamily:"'Space Grotesk'",fontSize:13,color:"#f0f6fc",marginBottom:8}}>Championship Profile Filters</h3>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
+        <div style={{background:"#0d1117",border:"1px solid #58a6ff30",borderRadius:4,padding:10}}>
+          <div style={{fontSize:11,fontWeight:700,color:"#58a6ff",marginBottom:4}}>Filter 1: Coach Elite 8+</div>
+          <div style={{fontSize:9,color:"#c9d1d9",lineHeight:1.5}}>Since 2002, <b style={{color:"#f6e05e"}}>20/23 champs</b> had HC with prior E8+. Only 3 exceptions. Weakening in NIL era.</div>
+        </div>
+        <div style={{background:"#0d1117",border:"1px solid #d2a8ff30",borderRadius:4,padding:10}}>
+          <div style={{fontSize:11,fontWeight:700,color:"#d2a8ff",marginBottom:4}}>Filter 2: Conference Champion</div>
+          <div style={{fontSize:9,color:"#c9d1d9",lineHeight:1.5}}>Since 1997, <b style={{color:"#f6e05e"}}>25/28 champs</b> won conf reg season or tourney. ~89% hit rate.</div>
+        </div>
+      </div>
+      <h4 style={{fontSize:11,color:"#3fb950",marginBottom:6}}>✓✓ PASS BOTH — CHAMPION PROFILE ({T.filter(x=>x.e8&&x.cc&&x.tr!=="avoid"&&x.tr!=="r1r2").length} teams):</h4>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:5,marginBottom:12}}>
+        {T.filter(x=>x.e8&&x.cc&&x.tr!=="avoid"&&x.tr!=="r1r2").sort((a,b)=>EV(b)-EV(a)).map(t=>{const e=EV(t);
+          return <div key={t.t} style={{background:"rgba(63,185,80,.06)",border:"1px solid rgba(63,185,80,.25)",borderRadius:4,padding:8}}>
+            <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontSize:13,fontWeight:700,color:"#3fb950",fontFamily:"'Space Grotesk'"}}>{t.t}{t.fm?" ★":""}</span><span style={{fontSize:9,color:RC[t.r].hd}}>#{t.s} {t.r}</span></div>
+            <div style={{fontSize:8,color:"#c9d1d9",marginTop:2}}>KP#{t.kp} · {t.rec} · {t.o} · EV: ${e.toLocaleString()}</div>
+            <div style={{fontSize:7,color:"#58a6ff"}}>👤 {t.ch}: {t.cn}</div>
+            <div style={{fontSize:7,color:"#d2a8ff"}}>🏆 {t.ccn}</div>
+            <div style={{fontSize:7,color:t.inj?"#f85149":"#3fb950",marginTop:1}}>{t.inj?"⚠️ "+t.inj:"✓ Healthy"}</div>
+          </div>})}
+      </div>
+      <h4 style={{fontSize:10,color:"#58a6ff",marginBottom:4}}>✓ PASS ONE FILTER — CONTENDERS WITH CAVEATS:</h4>
+      <div style={{overflowX:"auto",marginBottom:12}}>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:9}}>
+          <thead><tr style={{background:"#0d1117"}}>{["Team","Seed","Odds","Coach E8+","Conf Champ","Missing"].map(h=><th key={h} style={{padding:"3px 5px",textAlign:"left",color:"#8b949e",fontSize:7,borderBottom:"1px solid #21262d"}}>{h}</th>)}</tr></thead>
+          <tbody>{T.filter(x=>(x.e8||x.cc)&&!(x.e8&&x.cc)&&x.tr!=="r1r2"&&x.tr!=="avoid").sort((a,b)=>EV(b)-EV(a)).map(t=>
+            <tr key={t.t} className="R" style={{borderBottom:"1px solid #21262d"}}>
+              <td style={{padding:"2px 5px",fontWeight:600,color:TC[t.tr]?.c||"#c9d1d9"}}>{t.t}</td>
+              <td style={{padding:"2px 5px",color:"#8b949e"}}>#{t.s} {t.r}</td><td style={{padding:"2px 5px"}}>{t.o}</td>
+              <td style={{padding:"2px 5px",color:t.e8?"#3fb950":"#f85149"}}>{t.e8?"✓":"✗"} {t.ch}</td>
+              <td style={{padding:"2px 5px",color:t.cc?"#3fb950":"#f85149"}}>{t.cc?"✓":"✗"}</td>
+              <td style={{padding:"2px 5px",fontSize:7,color:"#f6e05e"}}>{!t.e8?"No E8 (20/23 had this)":"No conf title (25/28 had this)"}</td>
+            </tr>)}</tbody>
+        </table>
+      </div>
+      <h4 style={{fontSize:10,color:"#f85149",marginBottom:4}}>✗✗ FAIL BOTH (contenders only):</h4>
+      <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:12}}>
+        {T.filter(x=>!x.e8&&!x.cc&&(x.tr==="premium"||x.tr==="value"||x.tr==="watch")).map(t=>
+          <span key={t.t} style={{padding:"2px 6px",background:"rgba(248,81,73,.06)",border:"1px solid rgba(248,81,73,.15)",borderRadius:2,fontSize:8,color:"#f85149"}}>#{t.s} {t.t} ({t.o})</span>)}
+      </div>
+      <div style={{background:"rgba(210,168,255,.06)",border:"1px solid rgba(210,168,255,.2)",borderRadius:4,padding:10}}>
+        <h4 style={{fontSize:11,color:"#d2a8ff",marginBottom:5}}>🎙️ Rothstein F4 vs Filters</h4>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:4,marginBottom:6}}>
+          {[{t:"UConn",s:2,r:"East",b:false},{t:"Houston",s:2,r:"South",b:false},{t:"Michigan",s:1,r:"Midwest",b:true},{t:"Purdue",s:2,r:"West",b:true}].map(f=>{const rc=RC[f.r];
+            return <div key={f.t} style={{background:rc.bg,borderRadius:3,padding:5,textAlign:"center",border:`1px solid ${f.b?"#3fb950":rc.bd}60`}}>
+              <div style={{fontSize:7,color:rc.tx}}>{f.r}</div>
+              <div style={{fontSize:11,fontWeight:700,color:rc.hd,fontFamily:"'Space Grotesk'"}}>{f.t}</div>
+              <div style={{fontSize:7,color:f.b?"#3fb950":"#f6e05e",fontWeight:600}}>{f.b?"✓✓ BOTH":"✓ Coach only"}</div>
+            </div>})}
+        </div>
+        <div style={{textAlign:"center",background:"rgba(63,185,80,.06)",borderRadius:3,padding:6,border:"1px solid rgba(63,185,80,.2)"}}>
+          <div style={{fontSize:7,color:"#8b949e"}}>ROTHSTEIN'S CHAMPION 🏆</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#3fb950",fontFamily:"'Space Grotesk'"}}>PURDUE ✓✓</div>
+          <div style={{fontSize:8,color:"#c9d1d9"}}>Both filters + Rothstein + Senior narrative + Cluff X-factor</div>
+        </div>
+      </div>
+    </div>}
+
+    {tab==="Players"&&<div>
+      <div style={{background:"#161b22",border:"1px solid #30363d",borderRadius:4,padding:8,marginBottom:6}}>
+        <h3 style={{fontFamily:"'Space Grotesk'",fontSize:12,color:"#f0f6fc",marginBottom:4}}>Starting 5 Comparison</h3>
+        <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>{T.filter(x=>x.pl?.length>0).map(t=>{const sel=comp.includes(t.t);const pb=PB(t);
+          return <button key={t.t} onClick={()=>sC(p=>sel?p.filter(x=>x!==t.t):[...p,t.t].slice(-6))} className={`F ${sel?"on":""}`}>#{t.s} {t.t} <span style={{color:pb.c,fontSize:6}}>{pb.x}</span></button>})}</div>
+      </div>
+      {comp.map(tn=>{const t=T.find(x=>x.t===tn);if(!t?.pl?.length)return null;const rc=RC[t.r];const c=TC[t.tr]||{c:"#8b949e"};const pb=PB(t);
+        return <div key={tn} style={{background:"#161b22",border:`1px solid ${rc.bd}40`,borderRadius:4,marginBottom:6,overflow:"hidden"}}>
+          <div style={{background:rc.bg,padding:"4px 8px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <span style={{fontFamily:"'Space Grotesk'",fontWeight:700,fontSize:11,color:rc.hd}}>#{t.s} {t.t} <span style={{fontSize:8,fontWeight:400,color:rc.tx}}>{t.rec} · {t.cf} · KP#{t.kp}</span></span>
+            <div style={{display:"flex",gap:3,alignItems:"center"}}><span style={{fontSize:7,color:pb.c,border:`1px solid ${pb.c}30`,padding:"1px 3px",borderRadius:2}}>{pb.x}</span><span style={{fontSize:9,color:c.c}}>{t.o}</span></div>
+          </div>
+          {t.inj&&<div style={{padding:"2px 8px",fontSize:8,color:"#f85149",background:"rgba(248,81,73,.05)"}}>⚠️ {t.inj}</div>}
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:9}}>
+            <thead><tr style={{background:"#0d1117"}}>{["Player","Pos","Yr","PPG","RPG","APG","Notes"].map(h=><th key={h} style={{padding:"3px 6px",textAlign:"left",color:"#8b949e",fontSize:7,borderBottom:"1px solid #21262d"}}>{h}</th>)}</tr></thead>
+            <tbody>{t.pl.map(p=><tr key={p.n} className="R" style={{borderBottom:"1px solid #21262d"}}>
+              <td style={{padding:"2px 6px",fontWeight:600,color:"#c9d1d9"}}>{p.n}</td>
+              <td style={{padding:"2px 6px",color:"#8b949e"}}>{p.p}</td><td style={{padding:"2px 6px",color:"#8b949e"}}>{p.y}</td>
+              <td style={{padding:"2px 6px",color:p.pp>=18?"#f6e05e":p.pp>=14?"#3fb950":"#c9d1d9",fontWeight:p.pp>=18?700:400}}>{p.pp}</td>
+              <td style={{padding:"2px 6px",color:p.rp>=7?"#3fb950":"#c9d1d9"}}>{p.rp}</td>
+              <td style={{padding:"2px 6px",color:p.ap>=5?"#58a6ff":"#c9d1d9"}}>{p.ap}</td>
+              <td style={{padding:"2px 6px",fontSize:7,color:"#8b949e",maxWidth:180}}>{p.nt}</td>
+            </tr>)}</tbody>
+          </table>
+        </div>})}
+    </div>}
+
+    {tab==="Portfolio"&&<div>
+      <div style={{background:"#161b22",border:"1px solid #30363d",borderRadius:4,padding:10,marginBottom:8}}>
+        <h3 style={{fontFamily:"'Space Grotesk'",fontSize:12,color:"#f0f6fc",marginBottom:5}}>Portfolio Builder</h3>
+        <div style={{display:"flex",gap:3,alignItems:"center",marginBottom:8}}>
+          <select onChange={e=>{const t=T.find(x=>x.t===e.target.value);if(t)addP(t);e.target.value=""}} defaultValue="">
+            <option value="" disabled>+ Add team...</option>
+            {T.filter(x=>!port.find(p=>p.t===x.t)).sort((a,b)=>a.s-b.s).map(t=><option key={t.t} value={t.t}>#{t.s} {t.t} ({t.r}) {t.e8&&t.cc?"✓✓":""}</option>)}
+          </select>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:4,marginBottom:8}}>
+          {[{l:"Spend",v:`$${totS.toLocaleString()}`,c:totS>90000?"#f85149":"#3fb950"},{l:"EV",v:`$${Math.round(totE).toLocaleString()}`,c:"#58a6ff"},{l:"Teams",v:port.length,c:"#f6e05e"},{l:"ROI",v:`${totS>0?((totE/totS-1)*100).toFixed(0):"0"}%`,c:totE>totS?"#3fb950":"#f85149"}].map(x=>
+            <div key={x.l} style={{background:"#0d1117",border:"1px solid #21262d",borderRadius:3,padding:6,textAlign:"center"}}>
+              <div style={{fontSize:7,color:"#8b949e",textTransform:"uppercase"}}>{x.l}</div>
+              <div style={{fontSize:14,fontWeight:700,color:x.c,fontFamily:"'Space Grotesk'"}}>{x.v}</div></div>)}
+        </div>
+      </div>
+      {port.length===0?<div style={{textAlign:"center",padding:20,color:"#484f58",fontSize:11}}>Add teams via dropdown or + on Full Bracket.</div>:
+      <div style={{background:"#161b22",border:"1px solid #30363d",borderRadius:4,overflow:"auto"}}>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:9}}>
+          <thead><tr style={{background:"#0d1117"}}>{["Team","Sd","Rgn","Profile","Odds","EV","Bid $","Own%","Adj EV","Net",""].map(h=><th key={h} style={{padding:"3px 5px",textAlign:"left",color:"#8b949e",fontSize:7,borderBottom:"1px solid #21262d"}}>{h}</th>)}</tr></thead>
+          <tbody>{port.map(p=>{const e=EV(p);const ae=Math.round(e*(p.own/100));const n=ae-p.bid;const c=TC[p.tr]||{c:"#8b949e"};const pb=PB(p);
+            return <tr key={p.t} style={{borderBottom:"1px solid #21262d"}}>
+              <td style={{padding:"3px 5px",fontWeight:600,color:c.c}}>{p.t}{p.inj?" ⚠️":""}</td>
+              <td style={{padding:"3px 5px",color:"#8b949e"}}>{p.s}</td>
+              <td style={{padding:"3px 5px",color:RC[p.r].hd}}>{p.r}</td>
+              <td style={{padding:"3px 5px"}}><span style={{fontSize:7,color:pb.c}}>{pb.x}</span></td>
+              <td style={{padding:"3px 5px"}}>{p.o}</td>
+              <td style={{padding:"3px 5px",color:"#3fb950"}}>${e.toLocaleString()}</td>
+              <td style={{padding:"3px 5px"}}><input type="number" value={p.bid||""} onChange={e=>upP(p.t,"bid",e.target.value)} style={{width:60}}/></td>
+              <td style={{padding:"3px 5px"}}><input type="number" value={p.own} onChange={e=>upP(p.t,"own",e.target.value)} min={0} max={100} style={{width:38}}/><span style={{color:"#484f58",fontSize:8}}>%</span></td>
+              <td style={{padding:"3px 5px",color:"#58a6ff",fontWeight:600}}>${ae.toLocaleString()}</td>
+              <td style={{padding:"3px 5px",color:n>=0?"#3fb950":"#f85149",fontWeight:600}}>{n>=0?"+":""}${n.toLocaleString()}</td>
+              <td style={{padding:"3px 5px"}}><button onClick={()=>rmP(p.t)} style={{background:"transparent",border:"none",color:"#f85149",cursor:"pointer",fontSize:11}}>×</button></td>
+            </tr>})}</tbody>
+          <tfoot><tr style={{background:"#0d1117"}}><td colSpan={5} style={{padding:"3px 5px",fontWeight:700,color:"#f0f6fc"}}>TOTALS</td><td></td>
+            <td style={{padding:"3px 5px",fontWeight:700,color:totS>90000?"#f85149":"#3fb950"}}>${totS.toLocaleString()}</td><td></td>
+            <td style={{padding:"3px 5px",fontWeight:700,color:"#58a6ff"}}>${Math.round(totE).toLocaleString()}</td>
+            <td style={{padding:"3px 5px",fontWeight:700,color:totE-totS>=0?"#3fb950":"#f85149"}}>{totE-totS>=0?"+":""}${Math.round(totE-totS).toLocaleString()}</td><td></td>
+          </tr></tfoot>
+        </table>
+      </div>}
+    </div>}
+
+    {tab==="Strategy"&&<div style={{display:"grid",gap:6}}>
+      <SC t="🏆 Tier 1: Both Filters (7 teams)" c="#3fb950">{`Duke (+330) — Scheyer F4'25 + ACC both. NPOY Boozer. Brutal East draw. ← $35-50K
+Michigan (+350) — May F4'23 + B1G reg. #1 defense. Rothstein F4. ← $40-55K
+Florida (+700) — Golden '25 champ + SEC reg. Defending champs. ← $25-35K
+Purdue (+3500) — Painter F4/title + B1G tourney. ROTHSTEIN CHAMPION. ← $30-40K (BEST VALUE)
+Arkansas (+5000) — Calipari '12 champ + SEC tourney. Acuff electric. ← $8-15K
+St. John's (+5000) — Pitino 2x champ + Big East both. Under-seeded. ← $8-15K
+Gonzaga (+5500) — Few title game + WCC champ. Huff doubtful dims ceiling. ← $6-10K`}</SC>
+      <SC t="⚠️ Tier 2: One Filter (caveats)" c="#f6e05e">{`Arizona (+400) — Lloyd no E8 but won B12 both. Healthiest. Easiest path. NIL era play. ← $35-45K
+Houston (+1000) — Sampson multiple F4s but no conf title. Geographic edge. Rothstein F4. ← $25-35K
+UConn (+1700) — Hurley B2B champ but lost BE final. IS a prior exception ('14,'23). ← $10-18K
+Michigan St (+4000) — Izzo 2000 champ but no B1G title. 15-1 as top seed Rd1. ← $8-15K
+Alabama (+10000) — Oats F4'24 but no SEC title. #1 PPG nationally (91.7). ← $6-12K
+Tennessee (+9000) — Barnes F4'03 but no SEC title. Top-15 D. ← $6-12K
+Kansas (+5000) — Self '08 champ but no B12 title. Peterson health huge wildcard. ← $5-10K`}</SC>
+      <SC t="💎 Value Plays & Cheap Fliers" c="#58a6ff">{`Illinois (+1900) — #1 offense but FAILS BOTH. Talent bet not profile bet. ← $10-15K
+BYU (+13000) — Dybantsa 25.3 PPG but FAILS BOTH + no Saunders. ← $5-8K
+TCU (+40000) — Rothstein East SLEEPER. Jamie Dixon. ← $1-2K
+Akron (+100000) — Rothstein 12-5 upset pick. 3-peat MAC. 29-5. ← $1-2K
+McNeese (+100000) — 3-peat Southland. Beat Clemson last year. 10+ SPG. ← $1-2K
+SMU (+35000) — Rothstein UNDERRATED. Edwards returning. ← $1-2K
+VCU (+50000) — A-10 champ. UNC only -2.5 fav = live upset. ← $1K
+Troy (+200000) — Rothstein picked Troy over Nebraska. Thomas Dowd. ← $500-1K
+High Point (+200000) — 30-4. #1 scoring margin (+19.7). Tubby Smith = '98 champ. ← $1K`}</SC>
+      <SC t="🚫 Avoid at Premium" c="#f85149">{`Nebraska — 0-8 in 1st Rd EVER + FAILS BOTH + Rothstein picked Troy upset
+Iowa State — KenPom #3 but FAILS BOTH. Otzelberger 0-2 Sweet 16.
+Virginia — 29-5 but FAILS BOTH. Odom no E8, no ACC title.
+Kentucky — 21-13. FAILS BOTH. Pope no E8. Lost 5 of 7 to end reg season.
+North Carolina — TWO best players OUT. Ceiling crashed. Only -2.5 vs VCU.`}</SC>
+      <SC t="📈 Trending Since Feb 15 (from The Sheet)" c="#3fb950">{`PEAKING (bid aggressively):
+↑ Duke — OE surged to #2. Elite both ends. Best form of any top seed.
+↑ Purdue — #1 OFFENSE since Feb 15. Scorching. Won B1G tourney.
+↑ Wisconsin — Offense surging to #3. Peaking at perfect time.
+↗ TCU — Offense improving. Rothstein sleeper trending right direction.
+↗ VCU — Both ends improving. A-10 champ trending up.
+↗ Miami FL — Reneau 18.8 PPG driving offensive surge.
+
+COLLAPSING (avoid or discount heavily):
+⬇️ Nebraska — Offense #61→#146. Can't score AT ALL.
+⬇️ Alabama — Both ends collapsed. Defense #67→#109.
+⬇️ Kansas — Offense #55→#113. Peterson health destroying metrics.
+⬇️ Virginia — Defense #16→#82. Late-season regression despite 29-5.
+⬇️ BYU — Defense #87→#143 post-Saunders. One-man (Dybantsa) team now.
+⬇️ Villanova — Offense #45→#102. Freefall. +1.5 dog for a reason.
+⬇️ Saint Louis — Both ends collapsed despite 28-5. No tourney experience.
+
+WARNING SPLITS (high upside but risky):
+⚠️ Michigan St — Offense #8 (surging!) but defense #64 (cratered). Izzo factor vs bad D.
+⚠️ St. John's — #1 DEFENSE since Feb 15 but offense #64. Can elite D carry them?
+⚠️ Georgia — Offense #3 but defense #169 (WORST in tourney). Boom or bust.
+⚠️ Vanderbilt — Offense top-10 but defense #78. Can be exposed by good offenses.`}</SC>
+
+      <SC t="📊 ATS & Betting Trends (from The Sheet)" c="#d2a8ff">{`NCAA Tournament Historical Data:
+• Favorites SU: 70% win rate (233-102) — chalk usually wins
+• Favorites ATS: Only 52% cover (175-160) — spreads are usually accurate
+• Favorites cover SPREADS: 83% (277-58) — massive edge
+• 1st Round: 72% SU, 54% ATS, 83% spread cover
+• Sweet 16: 63% SU, 48% ATS — coin flip on spread by S16
+• Elite 8+: 70-80% SU, 60% ATS — chalk dominates late
+
+KEY CALCUTTA INSIGHT: High seeds advance (70%+ SU) but don't always blow teams out (only 52% ATS). This means: Pay premium for teams likely to ADVANCE (high seeds for S16/E8 payouts) but don't overpay for blowout potential. The spread tightens in later rounds meaning upsets become more likely as talent gaps narrow.
+
+UNDER-THE-RADAR SPREAD PLAYS:
+• 12-seeds cover ATS more often than any other underdog seed
+• 5-vs-12 games are historically the tightest matchups
+• 8/9 games are true coin flips — Clemson/Iowa, Villanova/Utah State, Georgia/Saint Louis, Ohio State/TCU
+• Time-delayed unders hit at 55%+ historically (88-72-2 overall record)`}</SC>
+
+      <SC t="⚠️ Injuries" c="#f85149">{`Duke: Foster OUT + Ngongba ? · Michigan: Cason OUT · Arkansas: Saunders OUT (ACL)
+Texas Tech: Toppin OUT (ACL) · UNC: Wilson + another OUT · Louisville: Brown ?
+Gonzaga: Huff doubtful · UConn: Demary ankle · Kansas: Peterson cramping (11 games missed)
+Wisconsin: Winter health · BYU: Saunders OUT (ACL)`}</SC>
+    </div>}
+
+    {tab==="2025 Recap"&&<div style={{display:"grid",gap:8}}>
+      <div style={{background:"#161b22",border:"1px solid #30363d",borderRadius:4,padding:12}}>
+        <h3 style={{fontFamily:"'Space Grotesk'",fontSize:12,color:"#f0f6fc",marginBottom:6}}>2025 — Team SRU ($87K, -$242)</h3>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:4}}>
+          {[{t:"Duke",s:1,r:"East",c:37000},{t:"Michigan St",s:2,r:"South",c:36000},{t:"Missouri",s:6,r:"West",c:9500},{t:"UCLA",s:7,r:"Midwest",c:4500}].map(x=><div key={x.t} style={{background:"#0d1117",border:"1px solid #21262d",borderRadius:3,padding:5}}>
+            <div style={{fontWeight:600,color:"#c9d1d9",fontSize:10}}>#{x.s} {x.t}</div><div style={{fontSize:8,color:"#8b949e"}}>{x.r} · ${x.c.toLocaleString()}</div></div>)}
+        </div>
+      </div>
+      <div style={{background:"#161b22",border:"1px solid #30363d",borderRadius:4,padding:12}}>
+        <h4 style={{fontSize:9,color:"#8b949e",marginBottom:5}}>SYNDICATES</h4>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(100px,1fr))",gap:4}}>
+          {[{n:"DT6",s:104,t:14},{n:"SRU",s:87,t:4},{n:"Gainey",s:79,t:9},{n:"Black",s:76,t:17},{n:"Miranda",s:67,t:6},{n:"Martin",s:59,t:5},{n:"Shaw",s:59,t:8},{n:"Casualty",s:31,t:1}].map(x=><div key={x.n} style={{background:"#0d1117",border:"1px solid #21262d",borderRadius:3,padding:5}}>
+            <div style={{fontWeight:600,color:x.n==="SRU"?"#58a6ff":"#c9d1d9",fontSize:10}}>{x.n}</div>
+            <div style={{fontSize:12,color:"#3fb950",fontWeight:600}}>${x.s}K</div>
+            <div style={{fontSize:7,color:"#8b949e"}}>{x.t} teams</div></div>)}
+        </div>
+      </div>
+    </div>}
+  </div>);
+}
+function SC({t,c,children}){return <div style={{background:"#161b22",border:`1px solid ${c}20`,borderRadius:4,padding:10}}><h3 style={{fontFamily:"'Space Grotesk'",fontSize:11,color:c,marginBottom:5}}>{t}</h3><div style={{fontSize:9,color:"#c9d1d9",lineHeight:1.6,whiteSpace:"pre-line"}}>{children}</div></div>}
+
+const root=ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App/>);
+</script>
+</body>
+</html>
